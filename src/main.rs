@@ -1,15 +1,26 @@
-use anyhow::anyhow;
-use std::env::args;
-use std::error::Error;
+use clap::Parser;
 use std::io::stdin;
 use std::process::Command;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let args: Vec<_> = args().skip(1).collect();
-    for line in stdin().lines() {
-        Command::new(args.first().ok_or(anyhow!("Missing program name"))?)
-            .args(args.iter().skip(1))
-            .arg(line?)
+#[derive(Parser, Debug)]
+struct Args {
+    #[arg(short = 'n', long, default_value_t = usize::MAX)]
+    max_args: usize,
+    program: String,
+    #[arg(allow_hyphen_values = true)]
+    arguments: Vec<String>,
+}
+
+fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+    for lines in stdin()
+        .lines()
+        .collect::<Result<Vec<_>, _>>()?
+        .chunks(args.max_args)
+    {
+        Command::new(&args.program)
+            .args(&args.arguments)
+            .args(lines)
             .spawn()?
             .wait()?;
     }
