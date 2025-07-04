@@ -1,7 +1,9 @@
 use clap::Parser;
-use itertools::Itertools;
 use std::io::stdin;
 use std::process::Command;
+
+mod chunks;
+use chunks::ChunkIterator;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -14,7 +16,7 @@ struct Args {
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-    for lines in &stdin().lines().map_while(|x| x.ok()).chunks(args.max_args) {
+    for lines in stdin().lines().map_while(|x| x.ok()).chunks(args.max_args) {
         Command::new(&args.program)
             .args(&args.arguments)
             .args(lines)
