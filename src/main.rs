@@ -1,5 +1,6 @@
 use clap::Parser;
 use std::io::stdin;
+use std::num::NonZeroUsize;
 use std::process::Command;
 
 mod chunks;
@@ -7,8 +8,8 @@ use chunks::ChunkIterator;
 
 #[derive(Parser, Debug)]
 struct Args {
-    #[arg(short = 'n', long, default_value_t = usize::MAX)]
-    max_args: usize, // TODO: handle max_args == 0
+    #[arg(short = 'n', long, default_value_t = NonZeroUsize::MAX)]
+    max_args: NonZeroUsize,
     program: String,
     #[arg(allow_hyphen_values = true)]
     arguments: Vec<String>,
