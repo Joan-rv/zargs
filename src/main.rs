@@ -16,7 +16,12 @@ struct Args {
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-    for lines in stdin().lines().map_while(|x| x.ok()).chunks(args.max_args) {
+    for lines in stdin()
+        .lines()
+        .map_while(|x| x.ok())
+        .filter(|line| !line.is_empty())
+        .chunks(args.max_args)
+    {
         Command::new(&args.program)
             .args(&args.arguments)
             .args(lines)

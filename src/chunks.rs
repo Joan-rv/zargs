@@ -13,7 +13,10 @@ impl<I: Iterator> Iterator for Chunks<I> {
             if let Some(item) = self.iterator.next() {
                 buffer.push(item)
             } else {
-                return self.buffer.take();
+                return self
+                    .buffer
+                    .take()
+                    .and_then(|v| (!v.is_empty()).then_some(v));
             }
         }
 
