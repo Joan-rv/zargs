@@ -21,7 +21,7 @@ fn main() -> anyhow::Result<()> {
         .lines()
         .map_while(|x| x.ok())
         .filter(|line| !line.is_empty())
-        .chunks(args.max_args)
+        .chunks(args.max_args.get())
     {
         Command::new(&args.program)
             .args(&args.arguments)
