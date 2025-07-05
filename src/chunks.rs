@@ -1,24 +1,23 @@
 pub struct Chunks<I: Iterator> {
     iterator: I,
-    buffer: Vec<I::Item>,
+    buffer: Option<Vec<I::Item>>,
     chunk_size: usize,
 }
 
 impl<I: Iterator> Iterator for Chunks<I> {
     type Item = Vec<I::Item>;
     fn next(&mut self) -> Option<Self::Item> {
-        while self.buffer.len() < self.chunk_size {
+        let buffer = self.buffer.as_mut()?;
+
+        while buffer.len() < self.chunk_size {
             if let Some(item) = self.iterator.next() {
-                self.buffer.push(item)
+                buffer.push(item)
             } else {
-                break;
+                return self.buffer.take();
             }
         }
-        if self.buffer.is_empty() {
-            None
-        } else {
-            Some(std::mem::take(&mut self.buffer))
-        }
+
+        self.buffer.as_mut().map(std::mem::take)
     }
 }
 
@@ -32,7 +31,7 @@ impl<I: Iterator> ChunkIterator for I {
     fn chunks(self, chunk_size: usize) -> Chunks<Self::Iter> {
         Chunks {
             iterator: self,
-            buffer: Vec::new(),
+            buffer: Some(Vec::new()),
             chunk_size,
         }
     }
