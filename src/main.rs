@@ -1,4 +1,5 @@
 use clap::Parser;
+use std::ffi::OsString;
 use std::io::stdin;
 use std::num::NonZeroUsize;
 use std::process::Command;
@@ -10,9 +11,9 @@ use chunks::ChunkIterator;
 struct Args {
     #[arg(short = 'n', long, default_value_t = NonZeroUsize::MAX)]
     max_args: NonZeroUsize,
-    program: String,
+    program: OsString,
     #[arg(allow_hyphen_values = true)]
-    arguments: Vec<String>,
+    arguments: Vec<OsString>,
 }
 
 fn main() -> anyhow::Result<()> {
