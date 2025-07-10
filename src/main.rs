@@ -15,6 +15,8 @@ struct Args {
     null: bool,
     #[arg(short, long)]
     arg_file: Option<PathBuf>,
+    #[arg(short, long)]
+    delimiter: Option<char>,
     #[arg(short = 'n', long, default_value_t = NonZeroUsize::MAX)]
     max_args: NonZeroUsize,
     program: OsString,
@@ -24,7 +26,13 @@ struct Args {
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-    let delim = if args.null { b'\0' } else { b'\n' };
+    let delim = if let Some(c) = args.delimiter {
+        c.try_into()?
+    } else if args.null {
+        b'\0'
+    } else {
+        b'\n'
+    };
     let source: Box<dyn Read> = if let Some(path) = args.arg_file {
         Box::new(File::open(path)?)
     } else {
