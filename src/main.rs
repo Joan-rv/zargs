@@ -26,17 +26,19 @@ struct Args {
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
+    match &args.arg_file {
+        Some(path) => process(File::open(path)?, &args),
+        None => process(stdin(), &args),
+    }
+}
+
+fn process(source: impl Read, args: &Args) -> anyhow::Result<()> {
     let delim = if let Some(c) = args.delimiter {
         c.try_into()?
     } else if args.null {
         b'\0'
     } else {
         b'\n'
-    };
-    let source: Box<dyn Read> = if let Some(path) = args.arg_file {
-        Box::new(File::open(path)?)
-    } else {
-        Box::new(stdin())
     };
     let input = BufReader::new(source).split(delim);
 
